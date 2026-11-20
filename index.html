@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Made of Particles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: the whole site floats on dark water. The name is dust you can stir, the school years fill with water as you scroll, the numbers roll like an odometer, the skills bob like floats. One ember accent. */
+:root {
+  --night: #0d0f1c;
+  --glass: rgba(20,23,41,.55);
+  --line: rgba(154,157,176,.18);
+  --spark: #f2efe6;
+  --dim: #9a9db0;
+  --ember: #ff6a3d;
+  --display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --body: "Newsreader", Georgia, serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--night); color: var(--spark); font-family: var(--body); font-size: 19px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--ember); outline-offset: 3px; }
+.label { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+#water { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; z-index: 0; }
+main { position: relative; z-index: 1; }
+
+/* ---------- Hero ---------- */
+.hero { position: relative; }
+.hero canvas { display: block; width: 100%; height: clamp(480px, 58vw, 660px); cursor: crosshair; touch-action: pan-y; }
+.hero .intro { position: absolute; left: 24px; bottom: 26px; max-width: 460px; margin: 0; font-size: 18px; color: #d5d6dd; }
+.hero .intro b { font-weight: 400; color: var(--ember); }
+
+/* ---------- Chambers ---------- */
+.chamber-inner { max-width: 1240px; margin: 0 auto; padding: 88px 24px; display: grid; grid-template-columns: minmax(270px, 360px) 1fr; gap: 48px; align-items: center; }
+.chamber.flip .chamber-inner { grid-template-columns: 1fr minmax(270px, 360px); }
+.chamber.flip .text { order: 2; }
+.text { display: grid; align-content: start; gap: 18px; }
+.num { font-family: var(--mono); font-size: 12px; color: var(--ember); letter-spacing: .14em; }
+h2 { font-family: var(--display); font-weight: 700; font-size: clamp(34px, 4vw, 50px); line-height: 1; letter-spacing: -.025em; margin: 0; cursor: default; }
+.text p { margin: 0; color: #cfd0d8; font-size: 17.5px; }
+.static { border-top: 1px solid var(--line); padding: 12px 0 0; display: grid; gap: 2px; }
+.static .when { font-family: var(--mono); font-size: 11.5px; color: var(--ember); letter-spacing: .06em; }
+.static h3 { font-family: var(--body); font-weight: 400; font-size: 19px; line-height: 1.3; margin: 0; }
+.static p { font-size: 15.5px; color: var(--dim); }
+
+/* Education: years that fill */
+.tank { position: relative; height: 420px; }
+.tank canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* Experience: odometer */
+.odos { display: grid; gap: 40px; }
+.odo { display: grid; gap: 8px; cursor: default; }
+.digits { font-family: var(--display); font-weight: 800; font-size: clamp(72px, 11vw, 150px); line-height: 1; letter-spacing: -.04em; display: flex; height: 1em; overflow: hidden; }
+.col { display: inline-block; height: 1em; overflow: hidden; }
+.col .reel { display: flex; flex-direction: column; transition: transform 1.6s cubic-bezier(.2,.9,.2,1); }
+.col .reel span { height: 1em; display: block; text-align: center; }
+.digits .fixed { display: inline-block; }
+.digits .ember { color: var(--ember); }
+.odo .what { font-family: var(--mono); font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+.odo .what b { color: var(--spark); font-weight: 500; }
+
+/* Skills: floats */
+.floats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 32px; }
+.cluster h4 { margin: 0 0 14px; }
+.pills { display: flex; flex-wrap: wrap; gap: 12px 10px; }
+.pill {
+  font-family: var(--display); font-size: 17px; font-weight: 400;
+  padding: 7px 16px; border-radius: 999px;
+  border: 1px solid rgba(242,239,230,.35); background: rgba(13,15,28,.55);
+  backdrop-filter: blur(3px);
+  animation: bob var(--dur, 4s) ease-in-out var(--delay, 0s) infinite alternate;
+  transition: border-color .2s, color .2s, background .2s;
+  cursor: default; user-select: none;
+}
+.pill.big { font-weight: 700; font-size: 19px; }
+.pill:hover { border-color: var(--ember); color: var(--ember); background: rgba(13,15,28,.85); animation-play-state: paused; }
+@keyframes bob { from { transform: translateY(-3px) rotate(-.6deg); } to { transform: translateY(4px) rotate(.6deg); } }
+
+/* wobble headings */
+.wobble .w { display: inline-block; white-space: nowrap; }
+.wobble .ch { display: inline-block; transition: transform .7s cubic-bezier(.2, 2.2, .4, 1); }
+.wobble.shake .ch { transition: transform .08s linear; transform: translate(var(--x), var(--y)) rotate(var(--r)); }
+
+/* Last */
+.last .chamber-inner { align-items: end; min-height: 480px; }
+.contact { display: grid; gap: 8px; font-family: var(--mono); font-size: 15px; justify-self: end; text-align: right; background: var(--glass); padding: 16px 18px; backdrop-filter: blur(4px); }
+.contact a { justify-self: end; text-decoration: none; border-bottom: 2px solid var(--ember); }
+
+@media (max-width: 860px) {
+  .chamber-inner, .chamber.flip .chamber-inner { grid-template-columns: 1fr; padding: 60px 16px; gap: 28px; }
+  .chamber.flip .text { order: 0; }
+  .hero .intro { left: 16px; right: 16px; bottom: 18px; font-size: 16px; }
+  .tank { height: 560px; }
+  .floats { grid-template-columns: 1fr; }
+  .last .chamber-inner { min-height: 0; }
+  .contact { justify-self: start; text-align: left; }
+  .contact a { justify-self: start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wobble .ch, .col .reel { transition: none; }
+  .pill { animation: none; }
+}
+</style>
+</head>
+<body>
+<canvas id="water" aria-hidden="true"></canvas>
+
+<main>
+<section class="hero" aria-label="Opening">
+  <canvas id="hero" aria-label="Particles spelling Syed Tahsin Ar Rafi."></canvas>
+  <p class="intro">Software Engineering student at SUST, Bangladesh. Interested in AI for places where <b>small errors are expensive</b>: pharma, agriculture, automotive, aerospace.</p>
+</section>
+
+<!-- Education -->
+<section class="chamber" aria-labelledby="h-edu">
+  <div class="chamber-inner">
+    <div class="text">
+      <span class="num">EDUCATION</span>
+      <h2 class="wobble" id="h-edu">Where I've learned</h2>
+      <div class="static"><span class="when">2013 – 2023</span><h3>Monipur High School and College</h3><p>SSC, GPA 5.00 · School Science Club</p></div>
+      <div class="static"><span class="when">2023 – 2025</span><h3>Saint Joseph Higher Secondary School</h3><p>HSC, GPA 5.00</p></div>
+      <div class="static"><span class="when">2026 – 2030</span><h3>Shahjalal University of Science and Technology</h3><p>BSc (Engg.) Software Engineering · SUST Research Society · Socchar Human Rights</p></div>
+    </div>
+    <div class="tank" id="tank">
+      <canvas id="years" aria-label="The years 2013, 2023 and 2026 in outline, filling with water."></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- Experience -->
+<section class="chamber flip" aria-labelledby="h-exp">
+  <div class="chamber-inner">
+    <div class="text">
+      <span class="num">EXPERIENCE</span>
+      <h2 class="wobble" id="h-exp">What I've done</h2>
+      <div class="static"><span class="when">Sep – Dec 2026 · in progress</span><h3>GCI World, Matsuo-Iwasawa Lab, University of Tokyo</h3><p>Online program: Python, machine learning and data science on real business problems.</p></div>
+      <div class="static"><span class="when">2020 – 2021</span><h3>Volunteer moderator, Science Hacks Family</h3><p>Fact-checked claims against peer-reviewed sources, calmed heated threads, welcomed new members.</p></div>
+    </div>
+    <div class="odos">
+      <div class="odo" data-value="25,000"><div class="digits" aria-label="25,000"></div><span class="what"><b>members</b> in the science community I moderated</span></div>
+      <div class="odo" data-value="3"><div class="digits" aria-label="3"></div><span class="what"><b>months</b> with the University of Tokyo's GCI World</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Skills -->
+<section class="chamber" aria-labelledby="h-skills">
+  <div class="chamber-inner" style="align-items:start">
+    <div class="text">
+      <span class="num">SKILLS &amp; TRAINING</span>
+      <h2 class="wobble" id="h-skills">What I work with</h2>
+      <div class="static"><span class="when">Jul 2026</span><h3>Robocamp Robotics Course, Roboment R&amp;D Lab</h3><p>Arduino, sensors, DC motor control, wireless remote control, security system design.</p></div>
+      <div class="static"><span class="when">2026</span><h3>Certificates</h3><p>EF SET English C1 (68/100) · Data Analysis, Gobeshona Learning Academy · Introduction to Cybersecurity, Cisco · IEEE Xplore search strategies · Canva brand building, Coursera · Human rights and student activism workshop, Socchar</p></div>
+    </div>
+    <div class="floats">
+      <div class="cluster"><h4 class="label">Code</h4><div class="pills"><span class="pill big">Python</span><span class="pill big">C++</span><span class="pill">Structured programming</span><span class="pill">Data structures</span><span class="pill">Database systems</span></div></div>
+      <div class="cluster"><h4 class="label">Data &amp; AI</h4><div class="pills"><span class="pill big">Data analysis</span><span class="pill">NumPy</span><span class="pill">Pandas</span><span class="pill">Matplotlib</span><span class="pill">Machine learning fundamentals</span></div></div>
+      <div class="cluster"><h4 class="label">Hardware</h4><div class="pills"><span class="pill big">Arduino</span><span class="pill">Sensors</span><span class="pill">DC motor control</span><span class="pill">Wireless remote control</span><span class="pill">Security system design</span></div></div>
+      <div class="cluster"><h4 class="label">Languages</h4><div class="pills"><span class="pill">Bangla · native</span><span class="pill">English · C1</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Last -->
+<section class="chamber last" aria-labelledby="h-off">
+  <div class="chamber-inner">
+    <div class="text">
+      <span class="num">OFF THE PAGE</span>
+      <h2 class="wobble" id="h-off">Waiting for a ripple</h2>
+      <p>Outside code: anime, and fishing. Fishing is mostly patience, watching still water for the one ripple that matters.</p>
+    </div>
+    <div class="contact">
+      <span class="label">Get in touch</span>
+      <a href="mailto:syedtahsin13@gmail.com">syedtahsin13@gmail.com</a>
+      <a href="https://linkedin.com/in/rafi005">linkedin.com/in/rafi005</a>
+      <span>+880 1646-336353</span>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+(function () {
+  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var $ = function (id) { return document.getElementById(id); };
+  var EMBER = "#ff6a3d", SPARK = "#f2efe6";
+
+  function runWhenVisible(el, tick) {
+    var on = false, raf = 0;
+    function loop() { tick(); raf = requestAnimationFrame(loop); }
+    if (!("IntersectionObserver" in window)) { loop(); return; }
+    new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting && !on) { on = true; loop(); }
+        else if (!e.isIntersecting && on) { on = false; cancelAnimationFrame(raf); }
+      });
+    }, { rootMargin: "100px" }).observe(el);
+  }
+  function fit(cv) {
+    var r = cv.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = Math.max(1, Math.round(r.width * dpr)); cv.height = Math.max(1, Math.round(r.height * dpr));
+    var ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { ctx: ctx, W: r.width, H: r.height };
+  }
+  function local(cv, e) { var r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+
+  /* ================= Water: the whole page's background ================= */
+  var drop = function () {};
+  (function () {
+    var cv = $("water"), ctx, W, H, CELL = 6, cols, rows, a, b, img, oc, octx, frame = 0;
+    function setup() {
+      var f = fit(cv); ctx = f.ctx; W = f.W; H = f.H;
+      cols = Math.ceil(W / CELL) + 2; rows = Math.ceil(H / CELL) + 2;
+      a = new Float32Array(cols * rows); b = new Float32Array(cols * rows);
+      oc = document.createElement("canvas"); oc.width = cols; oc.height = rows; octx = oc.getContext("2d");
+      img = octx.createImageData(cols, rows);
+    }
+    drop = function (x, y, s) {
+      var cx = Math.floor(x / CELL) + 1, cy = Math.floor(y / CELL) + 1;
+      for (var dy = -2; dy <= 2; dy++) for (var dx = -2; dx <= 2; dx++) {
+        var X = cx + dx, Y = cy + dy; if (X < 1 || Y < 1 || X >= cols - 1 || Y >= rows - 1) continue;
+        a[Y * cols + X] += s * Math.exp(-(dx * dx + dy * dy) / 2);
+      }
+    };
+    function tick() {
+      frame++;
+      if (frame % 110 === 0) drop(Math.random() * W, Math.random() * H, 200);
+      var x, y, i;
+      for (y = 1; y < rows - 1; y++) for (x = 1; x < cols - 1; x++) {
+        i = y * cols + x;
+        b[i] = ((a[i - 1] + a[i + 1] + a[i - cols] + a[i + cols]) / 2 - b[i]) * 0.975;
+      }
+      var t = a; a = b; b = t;
+      var d = img.data;
+      for (y = 0; y < rows; y++) for (x = 0; x < cols; x++) {
+        i = y * cols + x;
+        var s = x > 0 && x < cols - 1 ? a[i - 1] - a[i + 1] : 0;
+        var light = Math.max(-1, Math.min(1, s / 70)), p = i * 4;
+        if (light > 0.04) { d[p] = 13 + light * 200; d[p + 1] = 15 + light * 75; d[p + 2] = 28 + light * 28; }
+        else { d[p] = 13 - light * 14; d[p + 1] = 15 - light * 16; d[p + 2] = 28 - light * 30; }
+        d[p + 3] = 255;
+      }
+      octx.putImageData(img, 0, 0);
+      ctx.drawImage(oc, -CELL, -CELL, cols * CELL, rows * CELL);
+    }
+    var last = null;
+    window.addEventListener("pointermove", function (e) {
+      var p = { x: e.clientX, y: e.clientY };
+      if (!last) { last = p; return; }
+      var dx = p.x - last.x, dy = p.y - last.y;
+      if (dx * dx + dy * dy > 81) { drop(p.x, p.y, 60); last = p; }
+    }, { passive: true });
+    window.addEventListener("pointerdown", function (e) { drop(e.clientX, e.clientY, 380); }, { passive: true });
+    setup(); drop(W * 0.7, H * 0.4, 500);
+    for (var k = 0; k < 30; k++) tick();
+    if (!reduce) { (function loop() { tick(); requestAnimationFrame(loop); })(); }
+    var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { setup(); tick(); }, 200); });
+  })();
+
+  /* ===== Particle text: shared by the name, education and experience ===== */
+  function ParticleText(cv, opts) {
+    var ctx, W, H, N, px, py, vx, vy, tx, ty, sp, bg = opts.bg, states = opts.states, cur = 0;
+    var mouse = { x: 0, y: 0, on: false };
+    function rand(seed) { var s = seed; return function () { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
+    function sample(state, seed) {
+      var oc = document.createElement("canvas"); oc.width = W; oc.height = H;
+      var o = oc.getContext("2d"), narrow = W < 600;
+      var lines = (narrow && state.narrow) ? state.narrow : state.lines;
+      // size each line to fit the width
+      var base = Math.min(H * (opts.heightShare || 0.3), 400), sizes = [], total = 0;
+      lines.forEach(function (l) {
+        o.font = "800 100px 'Bricolage Grotesque', 'Arial Black', sans-serif";
+        var w100 = o.measureText(l.t).width, fs = Math.min(base * l.s, (W * 0.86) / w100 * 100);
+        sizes.push(fs); total += fs * 0.98;
+      });
+      o.fillStyle = "#fff"; o.textAlign = "center"; o.textBaseline = "middle";
+      var y = H * (opts.centerY || 0.5) - total / 2;
+      lines.forEach(function (l, i) {
+        o.font = "800 " + sizes[i] + "px 'Bricolage Grotesque', 'Arial Black', sans-serif";
+        y += sizes[i] * 0.49; o.fillText(l.t, W / 2, y); y += sizes[i] * 0.49;
+      });
+      var data = o.getImageData(0, 0, W, H).data, pts = [], step = narrow ? 3 : (opts.step || 4);
+      for (var yy = 0; yy < H; yy += step) for (var xx = 0; xx < W; xx += step) if (data[(yy * W + xx) * 4 + 3] > 140) pts.push(xx, yy);
+      var r = rand(seed || 7), M = pts.length / 2, X = new Float32Array(N), Y = new Float32Array(N);
+      for (var i = 0; i < N; i++) { var j = Math.floor(r() * M); X[i] = pts[j * 2] + (r() - .5) * 1.5; Y[i] = pts[j * 2 + 1] + (r() - .5) * 1.5; }
+      return [X, Y];
+    }
+    var targets = [];
+    function setup() {
+      var f = fit(cv); ctx = f.ctx; W = Math.round(f.W); H = Math.round(f.H);
+      N = Math.round((W < 600 ? 0.55 : 1) * (opts.count || 2400));
+      px = new Float32Array(N); py = new Float32Array(N); vx = new Float32Array(N); vy = new Float32Array(N); sp = new Float32Array(N);
+      targets = states.map(function (s, i) { return sample(s, 7 + i * 13); });
+      tx = targets[cur][0]; ty = targets[cur][1];
+      for (var i = 0; i < N; i++) {
+        if (reduce) { px[i] = tx[i]; py[i] = ty[i]; }
+        else { var a = Math.random() * 6.283, r = Math.random() * Math.max(W, H) * 0.7; px[i] = W / 2 + Math.cos(a) * r; py[i] = H / 2 + Math.sin(a) * r; }
+      }
+      ctx.clearRect(0, 0, W, H);
+    }
+    function tick() {
+      // fade old frames to transparent so the water shows through, keeping short trails
+      if (reduce) ctx.clearRect(0, 0, W, H);
+      else { ctx.globalCompositeOperation = "destination-out"; ctx.fillStyle = "rgba(0,0,0,0.32)"; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = "source-over"; }
+      var k = 0.02, damp = 0.86, R = 100, R2 = R * R, i;
+      for (i = 0; i < N; i++) {
+        var fx = (tx[i] - px[i]) * k, fy = (ty[i] - py[i]) * k;
+        if (mouse.on) {
+          var dx = px[i] - mouse.x, dy = py[i] - mouse.y, d2 = dx * dx + dy * dy;
+          if (d2 < R2 && d2 > 1) { var d = Math.sqrt(d2), f = (1 - d / R) * 2.4; fx += dx / d * f - dy / d * f * .9; fy += dy / d * f + dx / d * f * .9; }
+        }
+        vx[i] = (vx[i] + fx) * damp; vy[i] = (vy[i] + fy) * damp; px[i] += vx[i]; py[i] += vy[i];
+        sp[i] = Math.min(1, Math.sqrt(vx[i] * vx[i] + vy[i] * vy[i]) / 6);
+      }
+      ctx.fillStyle = "rgba(242,239,230,0.88)";
+      for (i = 0; i < N; i++) if (sp[i] < .35) ctx.fillRect(px[i], py[i], 1.7, 1.7);
+      ctx.fillStyle = EMBER;
+      for (i = 0; i < N; i++) if (sp[i] >= .35) ctx.fillRect(px[i], py[i], 1.9, 1.9);
+    }
+    function go(i) {
+      if (i === cur) return; cur = i; tx = targets[i][0]; ty = targets[i][1];
+      // a little kick so the change reads as a burst
+      if (!reduce) for (var j = 0; j < N; j++) { vx[j] += (Math.random() - .5) * 8; vy[j] += (Math.random() - .5) * 8; }
+    }
+    cv.addEventListener("pointermove", function (e) { var p = local(cv, e); mouse.x = p.x; mouse.y = p.y; mouse.on = true; });
+    cv.addEventListener("pointerleave", function () { mouse.on = false; });
+    cv.addEventListener("pointerdown", function (e) {
+      var p = local(cv, e);
+      for (var i = 0; i < N; i++) { var dx = px[i] - p.x, dy = py[i] - p.y, d = Math.sqrt(dx * dx + dy * dy) + .01, f = 24 * Math.exp(-d / 130); vx[i] += dx / d * f; vy[i] += dy / d * f; }
+    });
+    var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(setup, 200); });
+    setup(); runWhenVisible(cv, tick);
+    return { go: go, count: states.length };
+  }
+
+
+  (function () {
+    var go = false;
+    function once() { if (go) return; go = true;
+      ParticleText($("hero"), { count: 4200, heightShare: 0.27, centerY: 0.43,
+        states: [{ lines: [{ t: "Syed Tahsin", s: 1 }, { t: "Ar Rafi", s: 1 }], narrow: [{ t: "Syed", s: 1 }, { t: "Tahsin", s: 1 }, { t: "Ar Rafi", s: 1 }] }] });
+    }
+    if (document.fonts && document.fonts.load) { document.fonts.load("800 80px 'Bricolage Grotesque'").then(once, once); setTimeout(once, 1500); } else once();
+  })();
+
+
+  /* ================= Education: years fill with water as you scroll ================= */
+  (function () {
+    var cv = $("years"), ctx, W, H, t = 0, years = ["2013", "2023", "2026"], cells = [], level = [0, 0, 0], hover = -1;
+    function layout() {
+      var f = fit(cv); ctx = f.ctx; W = f.W; H = f.H;
+      var stacked = W < 560; cells = [];
+      ctx.font = "800 100px 'Bricolage Grotesque', 'Arial Black', sans-serif";
+      var w100 = ctx.measureText("2013").width;
+      if (stacked) {
+        var fs = Math.min(H / 3 * 0.86, W * 0.9 / w100 * 100);
+        years.forEach(function (y, i) { cells.push({ x: W / 2, y: H / 6 + i * H / 3, fs: fs }); });
+      } else {
+        // a staircase: each year a step lower, like water levels
+        var fs2 = Math.min(H * 0.34, (W / 3) * 0.95 / w100 * 100);
+        years.forEach(function (y, i) { cells.push({ x: W * (0.18 + i * 0.32), y: H * (0.24 + i * 0.26), fs: fs2 }); });
+      }
+    }
+    function progress() {
+      var r = cv.getBoundingClientRect(), vh = window.innerHeight;
+      // 0 when the box top reaches the bottom of the screen, 1 when its centre passes the screen middle
+      return Math.max(0, Math.min(1, (vh - r.top) / (vh * 0.5 + r.height * 0.5)));
+    }
+    function draw() {
+      t += 0.03;
+      var p = reduce ? 1 : progress();
+      ctx.clearRect(0, 0, W, H);
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      cells.forEach(function (c, i) {
+        var target = Math.max(0, Math.min(1, p * 3.2 - i * 0.9));
+        level[i] += (target - level[i]) * 0.06;
+        ctx.font = "800 " + c.fs + "px 'Bricolage Grotesque', 'Arial Black', sans-serif";
+        var m = ctx.measureText(years[i]), hw = m.width / 2, top = c.y - c.fs * 0.38, bot = c.y + c.fs * 0.38;
+        var surf = bot - (bot - top + 8) * level[i];
+        var amp = (hover === i ? 9 : 4) * Math.sin(Math.PI * Math.min(1, level[i] * 1.02));
+        // water inside the digits
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(c.x - hw - 10, bot + 20);
+        for (var x = c.x - hw - 10; x <= c.x + hw + 10; x += 6) ctx.lineTo(x, surf + Math.sin(x * 0.045 + t * 2 + i) * amp);
+        ctx.lineTo(c.x + hw + 10, bot + 20); ctx.closePath(); ctx.clip();
+        ctx.fillStyle = EMBER; ctx.fillText(years[i], c.x, c.y);
+        ctx.restore();
+        // glass outline
+        ctx.lineWidth = 1.4; ctx.strokeStyle = "rgba(242,239,230,.7)"; ctx.strokeText(years[i], c.x, c.y);
+        c.hw = hw; c.top = top; c.bot = bot;
+      });
+    }
+    cv.addEventListener("pointermove", function (e) {
+      var p = local(cv, e), h = -1;
+      cells.forEach(function (c, i) { if (Math.abs(p.x - c.x) < c.hw && p.y > c.top - 20 && p.y < c.bot + 20) h = i; });
+      hover = h;
+    });
+    cv.addEventListener("pointerleave", function () { hover = -1; });
+    var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(layout, 200); });
+    function start() { layout(); draw(); runWhenVisible(cv, draw); }
+    if (document.fonts && document.fonts.load) document.fonts.load("800 80px 'Bricolage Grotesque'").then(start, start); else start();
+  })();
+
+  /* ================= Experience: odometer numbers ================= */
+  (function () {
+    document.querySelectorAll(".odo").forEach(function (odo) {
+      var box = odo.querySelector(".digits"), reels = [], val = odo.getAttribute("data-value");
+      val.split("").forEach(function (ch) {
+        if (!/[0-9]/.test(ch)) { var f = document.createElement("span"); f.className = "fixed ember"; f.textContent = ch; f.setAttribute("aria-hidden", "true"); box.appendChild(f); return; }
+        var col = document.createElement("span"); col.className = "col"; col.setAttribute("aria-hidden", "true");
+        var reel = document.createElement("span"); reel.className = "reel";
+        for (var r = 0; r < 3; r++) for (var n = 0; n < 10; n++) { var s = document.createElement("span"); s.textContent = n; reel.appendChild(s); }
+        col.appendChild(reel); box.appendChild(col);
+        reels.push({ reel: reel, digit: +ch });
+      });
+      function roll(spins) {
+        reels.forEach(function (r, i) {
+          var idx = spins * 10 + r.digit;
+          r.reel.style.transitionDelay = (i * 0.12) + "s";
+          r.reel.style.transform = "translateY(" + (-idx) + "em)";
+        });
+      }
+      function reset() { reels.forEach(function (r) { r.reel.style.transition = "none"; r.reel.style.transform = "translateY(0)"; void r.reel.offsetHeight; r.reel.style.transition = ""; }); }
+      if (reduce) { roll(0); return; }
+      roll(0); reset();
+      var flip = 1;
+      if ("IntersectionObserver" in window) {
+        new IntersectionObserver(function (es) {
+          es.forEach(function (e) { if (e.isIntersecting) roll(2); else { reset(); } });
+        }, { threshold: 0.6 }).observe(odo);
+      } else roll(2);
+      odo.addEventListener("mouseenter", function () { flip = flip === 1 ? 2 : 1; roll(flip); });
+    });
+  })();
+
+  /* ================= Skills: floats that ripple the water ================= */
+  (function () {
+    document.querySelectorAll(".pill").forEach(function (el, i) {
+      var r = Math.sin(i * 12.9898) * 43758.5453; r -= Math.floor(r);
+      el.style.setProperty("--dur", (3 + r * 2.5).toFixed(2) + "s");
+      el.style.setProperty("--delay", (-r * 4).toFixed(2) + "s");
+      el.addEventListener("mouseenter", function () {
+        var b = el.getBoundingClientRect(); drop(b.left + b.width / 2, b.top + b.height / 2, 420);
+      });
+    });
+  })();
+
+  /* ================= Headings: jolt and settle ================= */
+  document.querySelectorAll(".wobble").forEach(function (el) {
+    var txt = el.textContent; el.textContent = ""; el.setAttribute("aria-label", txt);
+    txt.split(" ").forEach(function (word, wi) {
+      if (wi) el.appendChild(document.createTextNode(" "));
+      var w = document.createElement("span"); w.className = "w"; w.setAttribute("aria-hidden", "true");
+      word.split("").forEach(function (ch) { var s = document.createElement("span"); s.className = "ch"; s.textContent = ch; w.appendChild(s); });
+      el.appendChild(w);
+    });
+    if (reduce) return;
+    el.addEventListener("mouseenter", function () {
+      el.querySelectorAll(".ch").forEach(function (s) {
+        s.style.setProperty("--x", ((Math.random() - .5) * 14).toFixed(1) + "px");
+        s.style.setProperty("--y", ((Math.random() - .5) * 18).toFixed(1) + "px");
+        s.style.setProperty("--r", ((Math.random() - .5) * 24).toFixed(1) + "deg");
+      });
+      el.classList.add("shake"); setTimeout(function () { el.classList.remove("shake"); }, 90);
+    });
+  });
+
+
+})();
+</script>
+</body>
+</html>
